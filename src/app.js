@@ -8,11 +8,11 @@ app.use(cors());
 app.use('/static', express.static(path.join(__dirname, 'static')));
 
 
-app.get('/', function(req,res) {
+app.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname + '/html/Untitled-1.html'))
 });
 
-app.get('/style.css', function(req,res) {
+app.get('/style.css', function (req, res) {
 	res.sendFile(path.join(__dirname + '/html/style.css'))
 });
 
@@ -22,20 +22,20 @@ var data = null;
 
 const sqlite3 = require('sqlite3')
 
-let db = new sqlite3.Database("./mydb.sqlite3", (err) => { 
-    if (err) { 
-        console.log('Error when connnecting to the database', err) 
-    } else { 
-        console.log('Database connected!') 
-    } 
+let db = new sqlite3.Database("./mydb.sqlite3", (err) => {
+	if (err) {
+		console.log('Error when connnecting to the database', err)
+	} else {
+		console.log('Database connected!')
+	}
 })
 
 
-app.get('/app/status-app', function(req,res) {
+app.get('/app/status-app', function (req, res) {
 	res.sendFile(path.join(__dirname + '/html/index.html'))
 });
 
-app.get('/app/status-app/api/init', function(req, res) {
+app.get('/app/status-app/api/init', function (req, res) {
 	if (data == null) {
 		db.all("SELECT * FROM main", (err, rows) => {
 			if (err) {
@@ -44,13 +44,12 @@ app.get('/app/status-app/api/init', function(req, res) {
 				// console.log(rows)
 				data = rows
 				res.setHeader('Content-Type', 'application/json');
-				res.end(JSON.stringify(data));	
-				updated = false;
+				res.send(JSON.stringify(data));
 			}
 		})
 	} else {
 		res.setHeader('Content-Type', 'application/json');
-		res.end(JSON.stringify(data));	
+		res.send(JSON.stringify(data));
 	}
 })
 
@@ -72,6 +71,6 @@ app.get('/app/status-app/api/update', (req, res) => {
 // -------------------------- status-app --------------------------------
 
 
-// app.listen(5000);
-app.listen(5000, '172.26.9.56');
+app.listen(5000);
+// app.listen(5000, '172.26.9.56');
 
