@@ -56,7 +56,7 @@ app.get('/app/status-app/api/init', function (req, res) {
 app.get('/app/status-app/api/update', (req, res) => {
 	queryName = req.query.name;
 	queryStatus = req.query.status;
-	if (queryName == "Qiusen") {
+	if (queryName == "Vincent") {
 		data[0].status = Number(queryStatus)
 	} else {
 		data[1].status = Number(queryStatus)
@@ -66,6 +66,10 @@ app.get('/app/status-app/api/update', (req, res) => {
 		$status: queryStatus
 	});
 	res.send("OK")
+})
+
+app.get('/app/status-app/api/diag/ping', (req, res) => {
+	res.send("pong")
 })
 
 // -------------------------- status-app --------------------------------
