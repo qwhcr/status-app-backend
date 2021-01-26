@@ -32,3 +32,5 @@ const populate = async () => {
 }
 
 exports.populate = populate
+
+populate()
