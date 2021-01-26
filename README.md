@@ -3,6 +3,7 @@ The backend repo of status app
 
 ## running the backend
 You need to have node on your machine
+
 `$ npm i` installing the dependencies
 
 `$ cd src/` go to the code directory
