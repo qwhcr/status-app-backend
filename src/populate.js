@@ -1,25 +1,34 @@
-const sqlite3 = require('sqlite3');
+const asyncDBWrapper = require("./async_db_wrapper")
 
 const populate = async () => {
-    let db = new sqlite3.Database("./mydb.sqlite3", (err) => {
-        if (err) {
-            console.log('Error when connnecting to the database', err)
-        } else {
-            console.log('Database connected!')
-        }
-    })
-    db.serialize(() => {
-        db.run("CREATE TABLE IF NOT EXISTS main (name TEXT, status INTEGER)");
-        var dummyData = [["Vincent", 1], ["Will", 1]];
-        dummyData.forEach((data) => {
-            db.run("INSERT INTO main(name, status) VALUES(?, ?)", data, (err) => {
-                if (err) {
-                    console.log(err);
-                };
-            });
-        });
-    })
-    db.close
+  try {
+    var db = await asyncDBWrapper.asyncGetDB()
+  } catch (e) {
+    console.log("error getting db" + e)
+    throw Error(e)
+  }
+
+  try {
+    await asyncDBWrapper.asyncDBRun(db,
+      "CREATE TABLE IF NOT EXISTS main (name TEXT, status INTEGER)"
+    )
+  } catch (e) {
+    console.log("error creating table", e)
+    throw Error(e)
+  }
+
+  let dummyData = [["Vincent", 1], ["Will", 1]];
+
+  for (const v of dummyData) {
+    try {
+    await asyncDBWrapper.asyncDBRun(db,
+      "INSERT INTO main(name, status) VALUES(?, ?)", v)
+    } catch (e) {
+      console.log("error inserting record" + v)
+    }
+
+  }
+  db.close()
 }
 
-populate();
+exports.populate = populate

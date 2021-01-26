@@ -1,80 +1,75 @@
-var express = require('express');
-var app = express();
-var path = require('path')
-const fs = require('fs');
+const express = require('express');
+const path = require('path')
+const cors = require('cors');
 
-var cors = require('cors');
+var app = express();
 app.use(cors());
+
+
+// -------------------------- front-end serving  -------------------------------
 app.use('/static', express.static(path.join(__dirname, 'static')));
 
 
+// -------------------------- backend --------------------------------
+const asyncDBWrapper = require('./async_db_wrapper')
+
 app.get('/', function (req, res) {
-	res.sendFile(path.join(__dirname + '/html/Untitled-1.html'))
+  res.sendFile(path.join(__dirname + '/static/html/index.html'));
 });
 
-app.get('/style.css', function (req, res) {
-	res.sendFile(path.join(__dirname + '/html/style.css'))
-});
+app.get('/api/status', async function (_, res) {
+  res.setHeader('Content-Type', 'application/json');
+  let db;
+  try {
+    db = await asyncDBWrapper.asyncGetDB()
+  } catch (e) {
+    console.log("cannot get DB" + e)
+    res.send(JSON.stringify({"error": e}))
+    return
+  }
+  let statusData;
+  try {
+    statusData = await asyncDBWrapper.asyncDBAll(db, "SELECT * FROM main")
+  } catch (e) {
+    console.log("cannot get status data" + e)
+    res.send(JSON.stringify({"error": e}))
+    return
+  }
 
-
-// -------------------------- status-app --------------------------------
-var data = null;
-
-const sqlite3 = require('sqlite3')
-
-let db = new sqlite3.Database("./mydb.sqlite3", (err) => {
-	if (err) {
-		console.log('Error when connnecting to the database', err)
-	} else {
-		console.log('Database connected!')
-	}
+  db.close()
+  res.send(JSON.stringify(statusData));
 })
 
-
-app.get('/app/status-app', function (req, res) {
-	res.sendFile(path.join(__dirname + '/html/index.html'))
-});
-
-app.get('/app/status-app/api/init', function (req, res) {
-	if (data == null) {
-		db.all("SELECT * FROM main", (err, rows) => {
-			if (err) {
-				console.log("Error quering data", err)
-			} else {
-				// console.log(rows)
-				data = rows
-				res.setHeader('Content-Type', 'application/json');
-				res.send(JSON.stringify(data));
-			}
-		})
-	} else {
-		res.setHeader('Content-Type', 'application/json');
-		res.send(JSON.stringify(data));
-	}
+app.get('/api/update', async (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  queryName = req.query.name;
+  queryStatus = req.query.status;
+  try {
+    db = await asyncDBWrapper.asyncGetDB()
+  } catch (e) {
+    console.log("cannot get DB" + e)
+    res.send(JSON.stringify({"error": e}))
+    return
+  }
+  try {
+    await asyncDBWrapper.asyncDBRun(db,
+      "UPDATE main SET status = $status WHERE name = $name",
+      {
+        $name: queryName,
+        $status: queryStatus
+      })
+  } catch (e) {
+    console.log("failed to update:" + e)
+    res.send(JSON.stringify({"error": e}))
+  }
+  db.close()
+  res.send(JSON.stringify({"result": "OK"}));
 })
 
-app.get('/app/status-app/api/update', (req, res) => {
-	queryName = req.query.name;
-	queryStatus = req.query.status;
-	if (queryName == "Vincent") {
-		data[0].status = Number(queryStatus)
-	} else {
-		data[1].status = Number(queryStatus)
-	}
-	db.run("UPDATE main SET status = $status WHERE name = $name", {
-		$name: queryName,
-		$status: queryStatus
-	});
-	res.send("OK")
+app.get('/api/diag/ping', (req, res) => {
+  res.send("pong");
 })
-
-app.get('/app/status-app/api/diag/ping', (req, res) => {
-	res.send("pong")
-})
-
-// -------------------------- status-app --------------------------------
 
 
 app.listen(5000);
-// app.listen(5000, '172.26.9.56');
 
