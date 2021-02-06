@@ -34,11 +34,11 @@ exports.asyncDBRun = async (db, query, data) => {
 exports.asyncDBGet = async (db, query, data) => {
   return new Promise((rs, rj) => {
     if (data == null) {
-      db.get(query, (err) => {
+      db.get(query, (err, row) => {
         if (err) {
           rj(err);
         }
-        rs();
+        rs(row);
       });
     } else {
       db.get(query, data, (err, row) => {
