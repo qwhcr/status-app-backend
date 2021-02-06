@@ -16,16 +16,36 @@ exports.asyncDBRun = async (db, query, data) => {
     if (data == null) {
       db.run(query, (err) => {
         if (err) {
-          rj(err)
+          rj(err);
         }
-        rs()
+        rs();
       });
     } else {
       db.run(query, data, (err) => {
         if (err) {
-          rj(err)
+          rj(err);
         }
-        rs()
+        rs();
+      });
+    }
+  })
+}
+
+exports.asyncDBGet = async (db, query, data) => {
+  return new Promise((rs, rj) => {
+    if (data == null) {
+      db.get(query, (err) => {
+        if (err) {
+          rj(err);
+        }
+        rs();
+      });
+    } else {
+      db.get(query, data, (err, row) => {
+        if (err) {
+          rj(err);
+        }
+        rs(row);
       });
     }
   })
@@ -35,9 +55,9 @@ exports.asyncDBAll = async (db, query) => {
   return new Promise((rs, rj) => {
     db.all(query, (err, rows) => {
       if (err) {
-        rj(err)
+        rj(err);
       }
-      rs(rows)
+      rs(rows);
     });
   })
 }
