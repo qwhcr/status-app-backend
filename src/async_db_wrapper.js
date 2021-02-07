@@ -51,13 +51,33 @@ exports.asyncDBGet = async (db, query, data) => {
   })
 }
 
-exports.asyncDBAll = async (db, query) => {
-  return new Promise((rs, rj) => {
-    db.all(query, (err, rows) => {
-      if (err) {
-        rj(err);
-      }
-      rs(rows);
+exports.asyncDBAll = async (db, query, data) => {
+  if (data === null) {
+    return new Promise((rs, rj) => {
+      db.all(query, (err, rows) => {
+        if (err) {
+          rj(err);
+        }
+        rs(rows);
+      });
+    })
+  } else {
+    return new Promise((rs, rj) => {
+      db.all(query, data, (err, rows) => {
+        if (err) {
+          rj(err);
+        }
+        rs(rows);
+      });
+    })
+  }
+}
+
+exports.asyncTransaction = async (db, transactionFunc) => {
+  return new Promise((rs, _) => {
+    db.serialize(() => {
+      transactionFunc(db);
+      rs();
     });
-  })
+  });
 }
