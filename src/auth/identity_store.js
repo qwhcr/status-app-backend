@@ -10,7 +10,7 @@ exports.verify = async (id, pwdPlainText) => {
 }
 
 exports.storeNewIdentity = async (identity) => {
-  // check identity integrety
+  // check identity integrity
   if (!(identity.id && identity.name && identity.entityType
     && identity.pwdPlainText)) {
     throw Error("cannot store incomplete identity")
@@ -36,15 +36,22 @@ exports.storeNewIdentity = async (identity) => {
   }
 }
 
-getIdentity = async (id) => {
+exports.checkIDExists = async (id) => {
+  if (await getIdentity(id)) {
+    return true;
+  }
+  return false;
+}
+
+var getIdentity = async (id) => {
   let db = await asyncDBWrapper.asyncGetDB();
-  return await asyncDBWrapper.asyncDBGet(
+  let identity = await asyncDBWrapper.asyncDBGet(
     db,
     "SELECT * FROM identity_tbl WHERE id = ?",
     id
   );
+  db.close();
+  return identity;
+
 }
-
-
-
 
