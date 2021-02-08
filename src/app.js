@@ -17,6 +17,7 @@ const identityStore = require('./auth/identity_store')
 const statusStore = require('./status/status_store')
 const occupancyStore = require('./occupancy/occupancy_store')
 const tokenHelper = require('./auth/token_helper')
+const reqUtil = require('./util/request_util')
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname + '/static/html/index.html'));
@@ -51,7 +52,18 @@ app.post('/api/auth/signin', async (req, res) => {
 });
 
 app.get('/api/status', async function (req, res) {
+  let authToken = reqUtil.getBearerToken(req);
+  let isValidUser = authToken == null ? false :
+    await tokenHelper.verifyUser(authToken, req.query.userid);
   res.setHeader('Content-Type', 'application/json');
+  if (!isValidUser) {
+    res.status(HttpStatus.StatusCodes.UNAUTHORIZED);
+    responsePayload = {
+      error: "unauthorized"
+    };
+    res.send(JSON.stringify(responsePayload))
+    return;
+  }
   let roomID = req.query.roomid;
   let userID = req.query.userid;
   let currentUserStatus;
@@ -123,7 +135,18 @@ app.get('/api/status', async function (req, res) {
 });
 
 app.get('/api/update', async (req, res) => {
+  let authToken = reqUtil.getBearerToken(req);
+  let isValidUser = authToken == null ? false :
+    await tokenHelper.verifyUser(authToken, req.query.userid);
   res.setHeader('Content-Type', 'application/json');
+  if (!isValidUser) {
+    res.status(HttpStatus.StatusCodes.UNAUTHORIZED);
+    responsePayload = {
+      error: "unauthorized"
+    };
+    res.send(JSON.stringify(responsePayload))
+    return;
+  }
   userID = req.query.userid;
   statusName = req.query.statusname;
   roomID = req.query.roomid;

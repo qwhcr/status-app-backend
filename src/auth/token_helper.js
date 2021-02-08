@@ -25,9 +25,17 @@ var verify = async (token) => {
   });
 }
 
-exports.verifyUser = async (authToken) => {
-  let decodedTokenPayload = await verify(authToken);
-  return identityStore.
-    validateEntityIDForExistingEntity(decodedTokenPayload.id);
+exports.verifyUser = async (authToken, userID) => {
+  let decodedTokenPayload;
+  try {
+    decodedTokenPayload = await verify(authToken);
+  } catch (e) {
+    return false;
+  }
+  if (decodedTokenPayload == null || userID !== decodedTokenPayload.id) {
+    return false
+  }
+  return await identityStore.
+    checkIDExists(decodedTokenPayload.id);
 }
 

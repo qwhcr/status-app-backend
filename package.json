@@ -16,6 +16,7 @@
     "http-status-codes": "^2.1.4",
     "jsonwebtoken": "^8.5.1",
     "pg": "^7.12.1",
-    "sqlite3": "^4.0.8"
+    "sqlite3": "^4.0.8",
+    "uuid": "^8.3.2"
   }
 }
