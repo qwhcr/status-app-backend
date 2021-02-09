@@ -12,3 +12,12 @@ You need to have node on your machine
 
 `$ node app.js` running the backend at localhost:5000
 
+## Features:
+ + Persistent user data through sqlite
+ + Industry standard password hashing procedure (support ready for implementing frontend signup flow)
+ + Protected backend endpoints for protecting user data (Require authentication)
+ + Persistent client authentication session using JWT
+ + HTTPS hosted on private AWS server on public domain: creat-ive.net
+ + Sqlite wrapper to support Async/Await syntext
+ + `populate.js` script for quick reset of development data in case of data corruption.
+ 
